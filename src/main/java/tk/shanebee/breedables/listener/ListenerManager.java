@@ -9,7 +9,7 @@ public class ListenerManager {
         PluginManager pm = plugin.getServer().getPluginManager();
         pm.registerEvents(new PlayerListener(plugin), plugin);
         pm.registerEvents(new EntityListener(plugin), plugin);
-        pm.registerEvents(new ChunkListener(plugin), plugin);
+        //pm.registerEvents(new ChunkListener(plugin), plugin); //todo this may not be needed if we are using a timer
     }
 
 }

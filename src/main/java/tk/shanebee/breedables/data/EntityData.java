@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.persistence.PersistentDataType;
 import tk.shanebee.breedables.Breedables;
 import tk.shanebee.breedables.type.Gender;
@@ -30,7 +29,7 @@ public class EntityData {
         this.pregnantTicks = 0;
         this.recoveryTicks = 0;
         setDataContainer(entity);
-        ((LivingEntity) entity).setCustomName(Utils.getColString(gender.getSymbol()));
+        entity.setCustomName(Utils.getColString(gender.getSymbol()));
     }
 
     private EntityData(UUID uuid, EntityType entityType, Gender gender, boolean pregnant, int pregnantTicks, int recoveryTicks) {
@@ -90,6 +89,7 @@ public class EntityData {
      */
     public void setPregnant(boolean pregnant) {
         this.pregnant = pregnant;
+        this.getEntity().setCustomName(Utils.getColString(pregnant ? gender.getPregnant() : gender.getSymbol()));
         setDataContainer();
     }
 
@@ -151,11 +151,7 @@ public class EntityData {
         return "EntityData:{Gender:" + gender + ",Pregnant:" + pregnant + ",PregnancyTicks:" + pregnantTicks + ",RecoveryTicks:" + recoveryTicks + "}";
     }
 
-    /** Get the EntityData from the entity's persistent container
-     * @param entity Entity to grab data from
-     * @return EntityData from this entity
-     */
-    public static EntityData dataFromEntity(Entity entity) {
+    public static EntityData dataFromEntityContainer(Entity entity) {
         NamespacedKey key = new NamespacedKey(Breedables.getInstance(), "entity-data");
         if (!entity.getPersistentDataContainer().has(key, PersistentDataType.STRING)) return null;
         String dataString = entity.getPersistentDataContainer().get(key, PersistentDataType.STRING);

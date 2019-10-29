@@ -4,6 +4,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import tk.shanebee.breedables.Breedables;
 import tk.shanebee.breedables.manager.EntityManager;
 
@@ -20,6 +21,14 @@ class EntityListener implements Listener {
         Entity entity = event.getEntity();
         if (!entityManager.isBreedable(entity)) return;
         entityManager.createEntityData(entity);
+    }
+
+    @EventHandler
+    private void onDeath(EntityDeathEvent event) {
+        Entity entity = event.getEntity();
+        if (entityManager.hasEntityData(entity)) {
+            entityManager.removeEntityData(entity);
+        }
     }
 
 }

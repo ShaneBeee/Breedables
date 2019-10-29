@@ -1,25 +1,31 @@
 package tk.shanebee.breedables.listener;
 
-import org.bukkit.Material;
-import org.bukkit.entity.Ageable;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityBreedEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import tk.shanebee.breedables.Breedables;
 import tk.shanebee.breedables.data.EntityData;
+import tk.shanebee.breedables.event.EntityGetsPregnantEvent;
 import tk.shanebee.breedables.manager.EntityManager;
 import tk.shanebee.breedables.util.Config;
 import tk.shanebee.breedables.util.Lang;
 import tk.shanebee.breedables.util.Utils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 class PlayerListener implements Listener {
 
     private EntityManager entityManager;
     private Lang lang;
     private Config config;
+    private Map<Player, Entity> playerEntityMap = new HashMap<>();
 
     PlayerListener(Breedables plugin) {
         this.entityManager = plugin.getEntityManager();
@@ -28,66 +34,133 @@ class PlayerListener implements Listener {
     }
 
     @EventHandler
-    private void onBreed(EntityBreedEvent event) {
-        if (event.getBreeder() instanceof Player) {
-            Player player = ((Player) event.getBreeder());
-            Entity entity1 = event.getMother();
-            Entity entity2 = event.getFather();
-
-            if (!entityManager.isBreedable(entity1) || !entityManager.isBreedable(entity2)) {
-                event.setCancelled(true);
-                return;
-            }
-
+    private void onBreedAttempt(PlayerInteractEntityEvent event) {
+        if (event.getHand() == EquipmentSlot.OFF_HAND) {
             event.setCancelled(true);
-            if (!entityManager.opposingGenders(entity1, entity2)) {
-                String gender = entityManager.getEntityData(entity1).getGender().getName().toLowerCase();
-                Utils.sendColMsg(player, lang.CANT_BREED_SAME_GENDER.replace("<gender>", gender));
-                ((Ageable) entity1).setBreed(false);
-                ((Ageable) entity2).setBreed(false);
-            } else {
-                EntityData entityData = entityManager.getFemaleData(entity1, entity2);
-                if (entityData.isPregnant()) {
-                    Utils.sendColMsg(player, lang.CANT_BREED_ENTITY_PREGNANT);
-                } else {
+            return;
+        }
 
-                    entityData.setPregnant(true);
-                    entityData.setPregnantTicks(20 * getPregnancySeconds(entityData));
-                    assert event.getBredWith() != null;
-                    removeOne(event.getBredWith());
-                    player.giveExp(event.getExperience());
-                    Utils.sendColMsg(player, "&aSuccessfully bred 2 entities");
-                    ((Ageable) entity1).setBreed(false);
-                    ((Ageable) entity2).setBreed(false);
-                }
+        Player player = event.getPlayer();
+
+        // Return if this entity can not breed
+        if (!entityManager.hasEntityData(event.getRightClicked())) return;
+
+        Animals clicked = ((Animals) event.getRightClicked());
+
+        // Return if entity can not breed (ie: baby or in love mode already)
+        if (!clicked.canBreed()) return;
+        if (clicked.isLoveMode()) return;
+
+        // If this is the first clicked entity, add the player and entity to a map
+        if (!playerEntityMap.containsKey(player)) {
+            playerEntityMap.put(player, clicked);
+        } else {
+            Entity firstMate = playerEntityMap.get(player);
+
+            // If same gender, prevent love mode
+            if (!entityManager.opposingGenders(clicked, firstMate)) {
+                event.setCancelled(true);
+
+                String gender = entityManager.getEntityData(clicked).getGender().getName().toLowerCase();
+                Utils.sendColMsg(player, lang.CANT_BREED_SAME_GENDER.replace("<gender>", gender));
+
+                // Else let the animals continue to mate
+            } else {
+                //EntityData mom = entityManager.getFemaleData(clicked, firstMate);
+                //EntityData dad = entityManager.getMaleData(clicked, firstMate);
+                playerEntityMap.remove(player);
+                //TODO: do we need to do something here?
             }
         }
+
+
     }
 
-    private void removeOne(ItemStack itemStack) {
-        if (itemStack.getAmount() > 1) {
-            itemStack.setAmount(itemStack.getAmount() - 1);
-        } else {
-            itemStack.setType(Material.AIR);
+    @EventHandler
+    private void onBreed(EntityBreedEvent event) {
+        // Return if breeder is not a player, but who the heck is breeding these entities?
+        if (!(event.getBreeder() instanceof Player)) return;
+
+        Animals entity1 = ((Animals) event.getMother());
+        Animals entity2 = ((Animals) event.getFather());
+
+        // If entities are not breedable, or do not have entity data, lets remove their love mode and get out of here
+        if (!entityManager.isBreedable(entity1) || !entityManager.isBreedable(entity1) ||
+                !entityManager.hasEntityData(entity1) || !entityManager.hasEntityData(entity2)) {
+            event.setCancelled(true);
+            entity1.setLoveModeTicks(0);
+            entity2.setLoveModeTicks(0);
+            return;
+        }
+        Player breeder = ((Player) event.getBreeder());
+        EntityData momData = entityManager.getFemaleData(entity1, entity2);
+        EntityData dadData = entityManager.getMaleData(entity1, entity2);
+
+        // Prevent an actual baby being born
+        event.setCancelled(true);
+
+        int ticks = getPregnancyTicks(momData);
+
+        // Call pregnancy event
+        EntityGetsPregnantEvent pregEvent = new EntityGetsPregnantEvent(momData, ticks);
+        Bukkit.getPluginManager().callEvent(pregEvent);
+
+        if (!pregEvent.isCancelled()) {
+            int pregTick = pregEvent.getPregnancyTicks();
+            int tilBreedTick = getTicksTilBreedAgain(momData);
+
+            // Prevent further breeding for a while
+            ((Animals) momData.getEntity()).setLoveModeTicks(0);
+            ((Animals) momData.getEntity()).setAge(pregTick + tilBreedTick);
+            ((Animals) dadData.getEntity()).setLoveModeTicks(0);
+            ((Animals) dadData.getEntity()).setAbsorptionAmount(tilBreedTick);
+
+            // Make mom pregnant
+            momData.setPregnant(true);
+            momData.setPregnantTicks(pregTick);
+
+            Utils.sendColMsg(breeder, "&aSuccessfully bred 2 entities");
         }
     }
 
-    private int getPregnancySeconds(EntityData data) {
+
+    private int getPregnancyTicks(EntityData data) {
         switch (data.getEntityType()) {
             case CHICKEN:
-                return config.PREGNANCY_SEC_TIL_BIRTH_CHICKEN;
+                return config.PREGNANCY_SEC_TIL_BIRTH_CHICKEN * 20;
             case COW:
-                return config.PREGNANCY_SEC_TIL_BIRTH_COW;
+                return config.PREGNANCY_SEC_TIL_BIRTH_COW * 20;
             case PIG:
-                return config.PREGNANCY_SEC_TIL_BIRTH_PIG;
+                return config.PREGNANCY_SEC_TIL_BIRTH_PIG * 20;
             case SHEEP:
-                return config.PREGNANCY_SEC_TIL_BIRTH_SHEEP;
+                return config.PREGNANCY_SEC_TIL_BIRTH_SHEEP * 20;
             case RABBIT:
-                return config.PREGNANCY_SEC_TIL_BIRTH_RABBIT;
+                return config.PREGNANCY_SEC_TIL_BIRTH_RABBIT * 20;
             case CAT:
-                return config.PREGNANCY_SEC_TIL_BIRTH_CAT;
+                return config.PREGNANCY_SEC_TIL_BIRTH_CAT * 20;
             case WOLF:
-                return config.PREGNANCY_SEC_TIL_BIRTH_WOLF;
+                return config.PREGNANCY_SEC_TIL_BIRTH_WOLF * 20;
+            default:
+                return 0;
+        }
+    }
+
+    private int getTicksTilBreedAgain(EntityData data) {
+        switch (data.getEntityType()) {
+            case CHICKEN:
+                return config.PREGNANCY_SEC_TIL_BREED_CHICKEN * 20;
+            case COW:
+                return config.PREGNANCY_SEC_TIL_BREED_COW * 20;
+            case PIG:
+                return config.PREGNANCY_SEC_TIL_BREED_PIG * 20;
+            case SHEEP:
+                return config.PREGNANCY_SEC_TIL_BREED_SHEEP * 20;
+            case RABBIT:
+                return config.PREGNANCY_SEC_TIL_BREED_RABBIT * 20;
+            case CAT:
+                return config.PREGNANCY_SEC_TIL_BREED_CAT * 20;
+            case WOLF:
+                return config.PREGNANCY_SEC_TIL_BREED_WOLF * 20;
             default:
                 return 0;
         }

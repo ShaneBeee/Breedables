@@ -1,10 +1,12 @@
 package tk.shanebee.breedables.manager;
 
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import tk.shanebee.breedables.Breedables;
 import tk.shanebee.breedables.data.EntityData;
@@ -43,6 +45,11 @@ public class EntityManager {
         return entityDataMap.containsKey(entity.getUniqueId());
     }
 
+    public boolean hasContainerData(Entity entity) {
+        NamespacedKey key = new NamespacedKey(Breedables.getInstance(), "entity-data");
+        return entity.getPersistentDataContainer().has(key, PersistentDataType.STRING);
+    }
+
     /** Get the EntityData from an entity
      * @param entity Entity to grab data from
      * @return EntityData from entity
@@ -78,6 +85,19 @@ public class EntityManager {
 
         EntityData data = new EntityData(entity, Utils.getRandomGender());
         this.entityDataMap.put(entity.getUniqueId(), data);
+    }
+
+    public void removeEntityData(@NotNull Entity entity) {
+        this.entityDataMap.remove(entity.getUniqueId());
+    }
+
+    public void createDataFromContainer(@NotNull Entity entity) {
+        if (!isBreedable(entity)) return;
+        NamespacedKey key = new NamespacedKey(Breedables.getInstance(), "entity-data");
+        if (entity.getPersistentDataContainer().has(key, PersistentDataType.STRING)) {
+            EntityData data = EntityData.dataFromEntityContainer(entity);
+            this.entityDataMap.put(entity.getUniqueId(), data);
+        }
     }
 
     /** Update an entity's EntityData stored in their persistent container
@@ -134,6 +154,13 @@ public class EntityManager {
         return entityData1.getGender() == Gender.FEMALE ? entityData1 : entityData2;
     }
 
+    public EntityData getMaleData(Entity entity1, Entity entity2) {
+        if (!opposingGenders(entity1, entity2)) return null;
+        EntityData entityData1 = getEntityData(entity1);
+        EntityData entityData2 = getEntityData(entity2);
+        return entityData1.getGender() == Gender.MALE ? entityData1 : entityData2;
+    }
+
     public void giveBirth(EntityData entityData) {
         entityData.setPregnant(false);
         entityData.setPregnantTicks(0);
@@ -144,7 +171,6 @@ public class EntityManager {
         EntityType type = entityData.getEntityType();
         for (int i = 0; i < b; i++) {
             Ageable baby = ((Ageable) w.spawnEntity(loc, type));
-            baby.setBaby();
             baby.setAge(-(getBabySeconds(type) * 20));
         }
     }

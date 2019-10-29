@@ -5,20 +5,19 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
 import tk.shanebee.breedables.Breedables;
-import tk.shanebee.breedables.data.EntityData;
 import tk.shanebee.breedables.manager.EntityManager;
 import tk.shanebee.breedables.util.Config;
 
-class PregnancyTask extends BukkitRunnable {
+class EntityDataTask extends BukkitRunnable {
 
     private EntityManager entityManager;
     private Config config;
     private int taskID;
 
-    PregnancyTask(Breedables plugin, int seconds) {
+    EntityDataTask(Breedables plugin, int seconds) {
         this.entityManager = plugin.getEntityManager();
         this.config = plugin.getBreedablesConfig();
-        this.taskID = this.runTaskTimer(plugin, 20 * seconds, 20 * seconds).getTaskId();
+        this.taskID = runTaskTimer(plugin, 20 * seconds, 20 * seconds).getTaskId();
     }
 
     @Override
@@ -27,16 +26,13 @@ class PregnancyTask extends BukkitRunnable {
             if (!config.ENABLED_WORLDS.contains(world.getName())) continue;
 
             for (Entity entity : world.getEntities()) {
-                if (entityManager.isBreedable(entity)) {
-                    EntityData data = entityManager.getEntityData(entity);
-                    if (data == null) continue;
-                    if (!data.isPregnant()) continue;
+                if (!entityManager.isBreedable(entity)) continue;
+                if (entityManager.hasEntityData(entity)) continue;
 
-                    if (data.getPregnantTicks() > 0) {
-                        data.removePregnantTicks(20);
-                    } else {
-                        entityManager.giveBirth(data);
-                    }
+                if (entityManager.hasContainerData(entity)) {
+                    entityManager.createDataFromContainer(entity);
+                } else {
+                    entityManager.createEntityData(entity);
                 }
             }
         }

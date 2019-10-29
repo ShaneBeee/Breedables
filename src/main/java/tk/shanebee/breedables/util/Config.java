@@ -7,12 +7,15 @@ import tk.shanebee.breedables.Breedables;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class Config {
 
     private FileConfiguration config = null;
     private File customConfigFile = null;
     private Breedables plugin;
+
+    public List<String> ENABLED_WORLDS;
 
     public int PREGNANCY_SEC_TIL_BIRTH_COW;
     public int PREGNANCY_SEC_TIL_BIRTH_CHICKEN;
@@ -96,6 +99,8 @@ public class Config {
     }
     
     private void loadConfig() {
+        this.ENABLED_WORLDS = config.getStringList("settings.enabled-worlds");
+
         this.PREGNANCY_SEC_TIL_BIRTH_COW = config.getInt("settings.pregnancy.seconds-til-birth.cow");
         this.PREGNANCY_SEC_TIL_BIRTH_CHICKEN = config.getInt("settings.pregnancy.seconds-til-birth.chicken");
         this.PREGNANCY_SEC_TIL_BIRTH_SHEEP = config.getInt("settings.pregnancy.seconds-til-birth.sheep");
