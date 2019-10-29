@@ -1,0 +1,5 @@
+main: tk.shanebee.breedables.Breedables
+name: Breedables
+version: ${project.version}
+author: ShaneBee
+api-version: '1.14'
