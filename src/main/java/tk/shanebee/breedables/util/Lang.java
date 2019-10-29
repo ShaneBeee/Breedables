@@ -19,6 +19,7 @@ public class Lang {
 
     public Lang(Breedables plugin) {
         this.plugin = plugin;
+        loadLangFile();
     }
 
     private void loadLangFile() {
@@ -28,13 +29,13 @@ public class Lang {
         if (!customLangFile.exists()) {
             plugin.saveResource("language.yml", false);
             lang = YamlConfiguration.loadConfiguration(customLangFile);
-            Utils.log("&7New language.yml created");
+            Utils.log("&7New language.yml &acreated");
         } else {
             lang = YamlConfiguration.loadConfiguration(customLangFile);
         }
         matchConfig(lang, customLangFile);
         loadLang();
-        Utils.log("&7language.yml loaded");
+        Utils.log("&7language.yml &aloaded");
     }
 
     // Used to update config
@@ -45,13 +46,13 @@ public class Lang {
             assert test != null;
             InputStreamReader is = new InputStreamReader(test);
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(is);
-            for (String key : defConfig.getConfigurationSection("").getKeys(false)) {
+            for (String key : defConfig.getConfigurationSection("").getKeys(true)) {
                 if (!config.contains(key)) {
                     config.set(key, defConfig.get(key));
                     hasUpdated = true;
                 }
             }
-            for (String key : config.getConfigurationSection("").getKeys(false)) {
+            for (String key : config.getConfigurationSection("").getKeys(true)) {
                 if (!defConfig.contains(key)) {
                     config.set(key, null);
                     hasUpdated = true;

@@ -1,12 +1,15 @@
 package tk.shanebee.breedables.listener;
 
+import org.bukkit.plugin.PluginManager;
 import tk.shanebee.breedables.Breedables;
 
 public class ListenerManager {
 
     public ListenerManager(Breedables plugin) {
-        plugin.getServer().getPluginManager().registerEvents(new PlayerListener(plugin), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new EntityListener(plugin), plugin);
+        PluginManager pm = plugin.getServer().getPluginManager();
+        pm.registerEvents(new PlayerListener(plugin), plugin);
+        pm.registerEvents(new EntityListener(plugin), plugin);
+        pm.registerEvents(new ChunkListener(plugin), plugin);
     }
 
 }

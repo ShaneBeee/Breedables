@@ -4,9 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.persistence.PersistentDataType;
 import tk.shanebee.breedables.Breedables;
 import tk.shanebee.breedables.type.Gender;
+import tk.shanebee.breedables.util.Utils;
 
 import java.util.UUID;
 
@@ -28,6 +30,7 @@ public class EntityData {
         this.pregnantTicks = 0;
         this.recoveryTicks = 0;
         setDataContainer(entity);
+        ((LivingEntity) entity).setCustomName(Utils.getColString(gender.getSymbol()));
     }
 
     private EntityData(UUID uuid, EntityType entityType, Gender gender, boolean pregnant, int pregnantTicks, int recoveryTicks) {

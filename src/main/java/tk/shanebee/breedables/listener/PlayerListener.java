@@ -1,6 +1,7 @@
 package tk.shanebee.breedables.listener;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,16 +43,22 @@ class PlayerListener implements Listener {
             if (!entityManager.opposingGenders(entity1, entity2)) {
                 String gender = entityManager.getEntityData(entity1).getGender().getName().toLowerCase();
                 Utils.sendColMsg(player, lang.CANT_BREED_SAME_GENDER.replace("<gender>", gender));
+                ((Ageable) entity1).setBreed(false);
+                ((Ageable) entity2).setBreed(false);
             } else {
                 EntityData entityData = entityManager.getFemaleData(entity1, entity2);
                 if (entityData.isPregnant()) {
                     Utils.sendColMsg(player, lang.CANT_BREED_ENTITY_PREGNANT);
                 } else {
+
                     entityData.setPregnant(true);
                     entityData.setPregnantTicks(20 * getPregnancySeconds(entityData));
                     assert event.getBredWith() != null;
                     removeOne(event.getBredWith());
                     player.giveExp(event.getExperience());
+                    Utils.sendColMsg(player, "&aSuccessfully bred 2 entities");
+                    ((Ageable) entity1).setBreed(false);
+                    ((Ageable) entity2).setBreed(false);
                 }
             }
         }

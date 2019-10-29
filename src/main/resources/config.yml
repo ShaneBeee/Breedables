@@ -1,4 +1,5 @@
-
+## Breedables
+## By: ShaneBee
 
 settings:
 
@@ -23,30 +24,22 @@ settings:
       rabbit: 400
     # Min/Max amount of offspring when the mother gives birth
     offspring:
-      min:
-        chicken: 3
-        sheep: 3
-        cow: 3
-        pig: 3
-        wolf: 1
-        cat: 2
-        rabbit: 4
-      max:
-        chicken: 8
-        sheep: 4
-        cow: 4
-        pig: 5
-        wolf: 3
-        cat: 6
-        rabbit: 10
+      chicken: 3;8
+      sheep: 3;4
+      cow: 3;4
+      pig: 3;5
+      wolf: 1;3
+      cat: 2;6
+      rabbit: 4;10
+
 
   baby:
     # Seconds til the baby grows up to be an adult
     seconds-til-adult:
-      chicken: 8
-      sheep: 4
-      cow: 4
-      pig: 5
-      wolf: 3
-      cat: 6
-      rabbit: 10
+      chicken: 600
+      sheep: 600
+      cow: 600
+      pig: 600
+      wolf: 600
+      cat: 600
+      rabbit: 1200

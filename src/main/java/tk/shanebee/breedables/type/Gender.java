@@ -2,8 +2,8 @@ package tk.shanebee.breedables.type;
 
 public enum Gender {
 
-    MALE("Male", "♂"),
-    FEMALE("Female", "♀");
+    MALE("Male", "&b♂"),
+    FEMALE("Female", "&5♀");
 
     private String name;
     private String symbol;

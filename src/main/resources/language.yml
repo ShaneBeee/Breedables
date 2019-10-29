@@ -1,4 +1,4 @@
-
+# Breedables Configurable Message file
 
 cant-breed-same-gender: '&cYou can not breed 2 <gender> entities'
 cant-breed-entity-pregnant: '&cYou can not breed a pregnant entity'
