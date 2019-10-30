@@ -1,46 +1,47 @@
 ## Breedables
 ## By: ShaneBee
 
-settings:
-  enabled-worlds:
-    - world
+enabled-worlds:
+  - world
 
-  pregnancy:
+entity-data:
+  cow:
     # Seconds the mother will be pregnant for
-    seconds-til-birth:
-      chicken: 6000
-      sheep: 6000
-      cow: 6000
-      pig: 6000
-      wolf: 6000
-      cat: 6000
-      rabbit: 9000
-    # Seconds the mother will be unable to breed for after giving birth
-    seconds-til-breedable:
-      chicken: 300
-      sheep: 300
-      cow: 300
-      pig: 300
-      wolf: 100
-      cat: 200
-      rabbit: 400
+    seconds-til-birth: 6000
+    # Seconds until the entity can breed again
+    # (for mothers, this will start after giving birth)
+    seconds-til-breedable: 300
     # Min;Max amount of offspring when the mother gives birth
-    offspring:
-      chicken: 3;8
-      sheep: 3;4
-      cow: 3;4
-      pig: 3;5
-      wolf: 1;3
-      cat: 2;6
-      rabbit: 4;10
-
-  baby:
+    offspring: 3;4
     # Seconds til the baby grows up to be an adult
-    seconds-til-adult:
-      chicken: 3600
-      sheep: 3600
-      cow: 3600
-      pig: 3600
-      wolf: 3600
-      cat: 3600
-      rabbit: 7200
+    seconds-til-adult: 3600
+  chicken:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 4;8
+    seconds-til-adult: 3600
+  sheep:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+  pig:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+  rabbit:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+  wolf:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+  cat:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600

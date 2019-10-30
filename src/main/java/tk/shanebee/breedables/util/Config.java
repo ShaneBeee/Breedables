@@ -1,53 +1,30 @@
 package tk.shanebee.breedables.util;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import tk.shanebee.breedables.Breedables;
+import tk.shanebee.breedables.data.BreedData;
+import tk.shanebee.breedables.data.EntityData;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Config {
 
+    private Breedables plugin;
     private FileConfiguration config = null;
     private File customConfigFile = null;
-    private Breedables plugin;
+    private Map<EntityType, BreedData> breedMap = new HashMap<>();
 
     public List<String> ENABLED_WORLDS;
 
-    public int PREGNANCY_SEC_TIL_BIRTH_COW;
-    public int PREGNANCY_SEC_TIL_BIRTH_CHICKEN;
-    public int PREGNANCY_SEC_TIL_BIRTH_SHEEP;
-    public int PREGNANCY_SEC_TIL_BIRTH_PIG;
-    public int PREGNANCY_SEC_TIL_BIRTH_RABBIT;
-    public int PREGNANCY_SEC_TIL_BIRTH_CAT;
-    public int PREGNANCY_SEC_TIL_BIRTH_WOLF;
-
-    public int PREGNANCY_SEC_TIL_BREED_COW;
-    public int PREGNANCY_SEC_TIL_BREED_CHICKEN;
-    public int PREGNANCY_SEC_TIL_BREED_SHEEP;
-    public int PREGNANCY_SEC_TIL_BREED_PIG;
-    public int PREGNANCY_SEC_TIL_BREED_RABBIT;
-    public int PREGNANCY_SEC_TIL_BREED_CAT;
-    public int PREGNANCY_SEC_TIL_BREED_WOLF;
-
-    public int BABY_SEC_TIL_ADULT_COW;
-    public int BABY_SEC_TIL_ADULT_CHICKEN;
-    public int BABY_SEC_TIL_ADULT_SHEEP;
-    public int BABY_SEC_TIL_ADULT_PIG;
-    public int BABY_SEC_TIL_ADULT_RABBIT;
-    public int BABY_SEC_TIL_ADULT_CAT;
-    public int BABY_SEC_TIL_ADULT_WOLF;
-
-    public String OFFSPRING_COW;
-    public String OFFSPRING_CHICKEN;
-    public String OFFSPRING_SHEEP;
-    public String OFFSPRING_PIG;
-    public String OFFSPRING_RABBIT;
-    public String OFFSPRING_CAT;
-    public String OFFSPRING_WOLF;
 
     public Config(Breedables plugin) {
         this.plugin = plugin;
@@ -85,12 +62,6 @@ public class Config {
                     hasUpdated = true;
                 }
             }
-            for (String key : config.getConfigurationSection("").getKeys(true)) {
-                if (!defConfig.contains(key)) {
-                    config.set(key, null);
-                    hasUpdated = true;
-                }
-            }
             if (hasUpdated)
                 config.save(file);
         } catch (Exception e) {
@@ -99,39 +70,46 @@ public class Config {
     }
     
     private void loadConfig() {
-        this.ENABLED_WORLDS = config.getStringList("settings.enabled-worlds");
+        this.ENABLED_WORLDS = config.getStringList("enabled-worlds");
+        ConfigurationSection sections = config.getConfigurationSection("entity-data");
+        assert sections != null;
+        for (String key : sections.getKeys(false)) {
+            if (isValidType(key)) {
+                EntityType type = EntityType.valueOf(key.toUpperCase());
+                int preg = config.getInt("entity-data." + key + ".seconds-til-birth") * 20;
+                int breed = config.getInt("entity-data." + key + ".seconds-til-breed") * 20;
+                int adult = config.getInt("entity-data." + key + ".seconds-til-adult") * 20;
+                String off = config.getString("entity-data." + key + ".offspring");
+                BreedData data = new BreedData(type, preg, breed, adult, off);
+                breedMap.put(type, data);
+            } else {
+                Utils.log("&6Invalid entity type: &c" + key);
+            }
+        }
+    }
 
-        this.PREGNANCY_SEC_TIL_BIRTH_COW = config.getInt("settings.pregnancy.seconds-til-birth.cow");
-        this.PREGNANCY_SEC_TIL_BIRTH_CHICKEN = config.getInt("settings.pregnancy.seconds-til-birth.chicken");
-        this.PREGNANCY_SEC_TIL_BIRTH_SHEEP = config.getInt("settings.pregnancy.seconds-til-birth.sheep");
-        this.PREGNANCY_SEC_TIL_BIRTH_CAT = config.getInt("settings.pregnancy.seconds-til-birth.cat");
-        this.PREGNANCY_SEC_TIL_BIRTH_PIG = config.getInt("settings.pregnancy.seconds-til-birth.pig");
-        this.PREGNANCY_SEC_TIL_BIRTH_WOLF = config.getInt("settings.pregnancy.seconds-til-birth.wolf");
-        this.PREGNANCY_SEC_TIL_BIRTH_RABBIT = config.getInt("settings.pregnancy.seconds-til-birth.rabbit");
+    public BreedData getBreedData(EntityType type) {
+        if (breedMap.containsKey(type)) {
+            return breedMap.get(type);
+        }
+        return null;
+    }
 
-        this.PREGNANCY_SEC_TIL_BREED_COW = config.getInt("settings.pregnancy.seconds-til-breedable.cow");
-        this.PREGNANCY_SEC_TIL_BREED_CHICKEN = config.getInt("settings.pregnancy.seconds-til-breedable.chicken");
-        this.PREGNANCY_SEC_TIL_BREED_SHEEP = config.getInt("settings.pregnancy.seconds-til-breedable.sheep");
-        this.PREGNANCY_SEC_TIL_BREED_CAT = config.getInt("settings.pregnancy.seconds-til-breedable.cat");
-        this.PREGNANCY_SEC_TIL_BREED_PIG = config.getInt("settings.pregnancy.seconds-til-breedable.pig");
-        this.PREGNANCY_SEC_TIL_BREED_WOLF = config.getInt("settings.pregnancy.seconds-til-breedable.wolf");
-        this.PREGNANCY_SEC_TIL_BREED_RABBIT = config.getInt("settings.pregnancy.seconds-til-breedable.rabbit");
+    public BreedData getBreedData(Entity entity) {
+        return getBreedData(entity.getType());
+    }
 
-        this.BABY_SEC_TIL_ADULT_COW = config.getInt("settings.baby.seconds-til-adult.cow");
-        this.BABY_SEC_TIL_ADULT_CHICKEN = config.getInt("settings.baby.seconds-til-adult.chicken");
-        this.BABY_SEC_TIL_ADULT_SHEEP = config.getInt("settings.baby.seconds-til-adult.sheep");
-        this.BABY_SEC_TIL_ADULT_PIG = config.getInt("settings.baby.seconds-til-adult.pig");
-        this.BABY_SEC_TIL_ADULT_RABBIT = config.getInt("settings.baby.seconds-til-adult.rabbit");
-        this.BABY_SEC_TIL_ADULT_CAT = config.getInt("settings.baby.seconds-til-adult.cat");
-        this.BABY_SEC_TIL_ADULT_WOLF = config.getInt("settings.baby.seconds-til-adult.wolf");
+    public BreedData getBreedData(EntityData data) {
+        return getBreedData(data.getEntityType());
+    }
 
-        this.OFFSPRING_COW = config.getString("settings.pregnancy.offspring.cow");
-        this.OFFSPRING_CHICKEN = config.getString("settings.pregnancy.offspring.chicken");
-        this.OFFSPRING_SHEEP = config.getString("settings.pregnancy.offspring.sheep");
-        this.OFFSPRING_PIG = config.getString("settings.pregnancy.offspring.pig");
-        this.OFFSPRING_RABBIT = config.getString("settings.pregnancy.offspring.rabbit");
-        this.OFFSPRING_CAT = config.getString("settings.pregnancy.offspring.cat");
-        this.OFFSPRING_WOLF = config.getString("settings.pregnancy.offspring.wolf");
+    private boolean isValidType(String type) {
+        try {
+            EntityType.valueOf(type.toUpperCase());
+            return true;
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
     }
 
 }

@@ -113,18 +113,7 @@ public class EntityManager {
      * @return True if this entity is able to breed
      */
     public boolean isBreedable(Entity entity) {
-        switch (entity.getType()) {
-            case CHICKEN:
-            case COW:
-            case PIG:
-            case SHEEP:
-            case RABBIT:
-            case WOLF:
-            case CAT:
-                return true;
-            default:
-                return false;
-        }
+        return config.getBreedData(entity) != null;
     }
 
     /** Check if 2 entities are opposing genders
@@ -171,67 +160,15 @@ public class EntityManager {
         EntityType type = entityData.getEntityType();
         for (int i = 0; i < b; i++) {
             Ageable baby = ((Ageable) w.spawnEntity(loc, type));
-            baby.setAge(-(getBabySeconds(type) * 20));
+            baby.setAge(-(config.getBreedData(type).getTicksTilAdult()));
         }
     }
 
     private int getBabyAmount(EntityType type) {
-        int[] amounts = intsFromString(type);
+        int min = config.getBreedData(type).getOffspringMin();
+        int max = config.getBreedData(type).getOffspringMax();
         Random random = new Random();
-        assert amounts != null;
-        return (random.nextInt(amounts[1] - amounts[0] + 1) + amounts[0]);
-    }
-
-    private int[] intsFromString(EntityType type) {
-        String string = null;
-        switch (type) {
-            case COW:
-                string = config.OFFSPRING_COW;
-                break;
-            case CHICKEN:
-                string = config.OFFSPRING_CHICKEN;
-                break;
-            case SHEEP:
-                string = config.OFFSPRING_SHEEP;
-                break;
-            case PIG:
-                string = config.OFFSPRING_PIG;
-                break;
-            case RABBIT:
-                string = config.OFFSPRING_RABBIT;
-                break;
-            case WOLF:
-                string = config.OFFSPRING_WOLF;
-                break;
-            case CAT:
-                string = config.OFFSPRING_CAT;
-                break;
-        }
-        if (string == null) return null;
-
-        String[] split = string.split(";");
-        return new int[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])};
-    }
-
-    private int getBabySeconds(EntityType type) {
-        switch (type) {
-            case COW:
-                return config.BABY_SEC_TIL_ADULT_COW;
-            case CHICKEN:
-                return config.BABY_SEC_TIL_ADULT_CHICKEN;
-            case SHEEP:
-                return config.BABY_SEC_TIL_ADULT_SHEEP;
-            case PIG:
-                return config.BABY_SEC_TIL_ADULT_PIG;
-            case RABBIT:
-                return config.BABY_SEC_TIL_ADULT_RABBIT;
-            case CAT:
-                return config.BABY_SEC_TIL_ADULT_CAT;
-            case WOLF:
-                return config.BABY_SEC_TIL_ADULT_WOLF;
-            default:
-                return 0;
-        }
+        return (random.nextInt(max - min + 1) + min);
     }
 
 }

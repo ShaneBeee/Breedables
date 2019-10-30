@@ -99,7 +99,7 @@ class PlayerListener implements Listener {
         // Prevent an actual baby being born
         event.setCancelled(true);
 
-        int ticks = getPregnancyTicks(momData);
+        int ticks = config.getBreedData(momData).getPregnancyTicks();
 
         // Call pregnancy event
         EntityGetsPregnantEvent pregEvent = new EntityGetsPregnantEvent(momData, ticks);
@@ -107,7 +107,7 @@ class PlayerListener implements Listener {
 
         if (!pregEvent.isCancelled()) {
             int pregTick = pregEvent.getPregnancyTicks();
-            int tilBreedTick = getTicksTilBreedAgain(momData);
+            int tilBreedTick = config.getBreedData(momData).getTicksTilBreed();
 
             // Prevent further breeding for a while
             ((Animals) momData.getEntity()).setLoveModeTicks(0);
@@ -120,49 +120,6 @@ class PlayerListener implements Listener {
             momData.setPregnantTicks(pregTick);
 
             Utils.sendColMsg(breeder, "&aSuccessfully bred 2 entities");
-        }
-    }
-
-
-    private int getPregnancyTicks(EntityData data) {
-        switch (data.getEntityType()) {
-            case CHICKEN:
-                return config.PREGNANCY_SEC_TIL_BIRTH_CHICKEN * 20;
-            case COW:
-                return config.PREGNANCY_SEC_TIL_BIRTH_COW * 20;
-            case PIG:
-                return config.PREGNANCY_SEC_TIL_BIRTH_PIG * 20;
-            case SHEEP:
-                return config.PREGNANCY_SEC_TIL_BIRTH_SHEEP * 20;
-            case RABBIT:
-                return config.PREGNANCY_SEC_TIL_BIRTH_RABBIT * 20;
-            case CAT:
-                return config.PREGNANCY_SEC_TIL_BIRTH_CAT * 20;
-            case WOLF:
-                return config.PREGNANCY_SEC_TIL_BIRTH_WOLF * 20;
-            default:
-                return 0;
-        }
-    }
-
-    private int getTicksTilBreedAgain(EntityData data) {
-        switch (data.getEntityType()) {
-            case CHICKEN:
-                return config.PREGNANCY_SEC_TIL_BREED_CHICKEN * 20;
-            case COW:
-                return config.PREGNANCY_SEC_TIL_BREED_COW * 20;
-            case PIG:
-                return config.PREGNANCY_SEC_TIL_BREED_PIG * 20;
-            case SHEEP:
-                return config.PREGNANCY_SEC_TIL_BREED_SHEEP * 20;
-            case RABBIT:
-                return config.PREGNANCY_SEC_TIL_BREED_RABBIT * 20;
-            case CAT:
-                return config.PREGNANCY_SEC_TIL_BREED_CAT * 20;
-            case WOLF:
-                return config.PREGNANCY_SEC_TIL_BREED_WOLF * 20;
-            default:
-                return 0;
         }
     }
 
