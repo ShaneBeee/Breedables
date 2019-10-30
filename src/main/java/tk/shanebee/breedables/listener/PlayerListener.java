@@ -58,7 +58,7 @@ class PlayerListener implements Listener {
             Entity firstMate = playerEntityMap.get(player);
 
             // If same gender, prevent love mode
-            if (!entityManager.opposingGenders(clicked, firstMate)) {
+            if (!entityManager.areOpposingGenders(clicked, firstMate)) {
                 event.setCancelled(true);
 
                 String gender = entityManager.getEntityData(clicked).getGender().getName().toLowerCase();

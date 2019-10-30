@@ -14,18 +14,18 @@ class PregnancyTask extends BukkitRunnable {
     private EntityManager entityManager;
     private Config config;
     private int taskID;
+    private int secondsDelay;
 
     PregnancyTask(Breedables plugin, int seconds) {
         this.entityManager = plugin.getEntityManager();
         this.config = plugin.getBreedablesConfig();
+        this.secondsDelay = seconds;
         this.taskID = this.runTaskTimer(plugin, 20 * seconds, 20 * seconds).getTaskId();
     }
 
     @Override
     public void run() {
-        for (World world : Bukkit.getWorlds()) {
-            if (!config.ENABLED_WORLDS.contains(world.getName())) continue;
-
+        for (World world : config.enabledWorlds) {
             for (Entity entity : world.getEntities()) {
                 if (entityManager.isBreedable(entity)) {
                     EntityData data = entityManager.getEntityData(entity);
@@ -33,7 +33,7 @@ class PregnancyTask extends BukkitRunnable {
                     if (!data.isPregnant()) continue;
 
                     if (data.getPregnantTicks() > 0) {
-                        data.removePregnantTicks(20);
+                        data.removePregnantTicks(20 * secondsDelay);
                     } else {
                         entityManager.giveBirth(data);
                     }

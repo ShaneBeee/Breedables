@@ -1,5 +1,8 @@
 package tk.shanebee.breedables.type;
 
+/**
+ * Gender options for entities
+ */
 public enum Gender {
 
     MALE("Male", "&b♂"),
@@ -19,21 +22,26 @@ public enum Gender {
         this.pregnant = pregnant;
     }
 
+    /** Get the name of the gender
+     * @return Name of gender
+     */
     public String getName() {
         return name;
     }
 
+    /** Get the symbol of the gender
+     * @return Symbol of the gender
+     */
     public String getSymbol() {
         return symbol;
     }
 
+    /** Get the pregnancy symbol of the gender
+     * <p>This will be the same as the regular symbol but has a different color</p>
+     * @return Pregnancy symbol of the gender
+     */
     public String getPregnant() {
         return pregnant;
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 
 }

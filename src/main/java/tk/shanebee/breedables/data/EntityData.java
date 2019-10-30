@@ -11,6 +11,11 @@ import tk.shanebee.breedables.util.Utils;
 
 import java.util.UUID;
 
+/**
+ * Data holder for a breedable <b>{@link Entity}</b>
+ * <p>This data is stored in a map in <b>{@link tk.shanebee.breedables.manager.EntityManager}</b> while the server is running
+ * <br>It is also permanently stored in the entity's <b>{@link org.bukkit.persistence.PersistentDataContainer}</b></p>
+ */
 @SuppressWarnings("unused")
 public class EntityData {
 
@@ -151,6 +156,10 @@ public class EntityData {
         return "EntityData:{Gender:" + gender + ",Pregnant:" + pregnant + ",PregnancyTicks:" + pregnantTicks + ",RecoveryTicks:" + recoveryTicks + "}";
     }
 
+    /** Get the entity data stored in an entity's {@link org.bukkit.persistence.PersistentDataContainer}
+     * @param entity Entity to grab data from
+     * @return New EntityData from entity
+     */
     public static EntityData dataFromEntityContainer(Entity entity) {
         NamespacedKey key = new NamespacedKey(Breedables.getInstance(), "entity-data");
         if (!entity.getPersistentDataContainer().has(key, PersistentDataType.STRING)) return null;
@@ -173,9 +182,7 @@ public class EntityData {
     public boolean setDataContainer() {
         Entity entity = Bukkit.getEntity(this.uuid);
         if (entity == null) return false;
-        NamespacedKey key = new NamespacedKey(Breedables.getInstance(), "entity-data");
-        entity.getPersistentDataContainer().set(key, PersistentDataType.STRING, this.toDataString());
-        return true;
+        return setDataContainer(entity);
     }
 
     @SuppressWarnings("UnusedReturnValue")

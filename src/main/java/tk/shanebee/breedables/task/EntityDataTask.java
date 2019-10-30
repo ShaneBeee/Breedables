@@ -22,9 +22,7 @@ class EntityDataTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        for (World world : Bukkit.getWorlds()) {
-            if (!config.ENABLED_WORLDS.contains(world.getName())) continue;
-
+        for (World world : config.enabledWorlds) {
             for (Entity entity : world.getEntities()) {
                 if (!entityManager.isBreedable(entity)) continue;
                 if (entityManager.hasEntityData(entity)) continue;

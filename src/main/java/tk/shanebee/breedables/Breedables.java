@@ -23,12 +23,15 @@ public class Breedables extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        this.lang = new Lang(this);
-        this.config = new Config(this);
+        // Load configs
+        loadConfigs();
+
+        // Load managers
         this.entityManager = new EntityManager(this);
         this.listenerManager = new ListenerManager(this);
         this.taskManager = new TaskManager(this);
 
+        // Start tasks
         this.taskManager.startTasks();
 
         Utils.log("&7Successfully &aenabled &7" + getDescription().getFullName());
@@ -42,6 +45,14 @@ public class Breedables extends JavaPlugin {
         Utils.log("&7All tasks cancelled");
 
         Utils.log("&6Bye Bye Breedables! Sleep tight server!");
+    }
+
+    /**
+     * Load/Reload configs
+     */
+    public void loadConfigs() {
+        this.lang = new Lang(this);
+        this.config = new Config(this);
     }
 
     /** Get an instance of this plugin

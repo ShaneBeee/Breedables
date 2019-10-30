@@ -15,33 +15,77 @@ entity-data:
     offspring: 3;4
     # Seconds til the baby grows up to be an adult
     seconds-til-adult: 3600
+    # Currently unused
+    breeding-tool: WHEAT
+  mushroom_cow:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+    breeding-tool: WHEAT
   chicken:
     seconds-til-birth: 6000
     seconds-til-breedable: 300
     offspring: 4;8
     seconds-til-adult: 3600
+    breeding-tool: WHEAT_SEEDS;BEETROOT_SEEDS;MELON_SEEDS;PUMPKIN_SEEDS
   sheep:
     seconds-til-birth: 6000
     seconds-til-breedable: 300
     offspring: 3;4
     seconds-til-adult: 3600
+    breeding-tool: WHEAT
   pig:
     seconds-til-birth: 6000
     seconds-til-breedable: 300
     offspring: 3;4
     seconds-til-adult: 3600
+    breeding-tool: CARROT
   rabbit:
     seconds-til-birth: 6000
     seconds-til-breedable: 300
     offspring: 3;4
     seconds-til-adult: 3600
+    breeding-tool: CARROT
   wolf:
     seconds-til-birth: 6000
     seconds-til-breedable: 300
     offspring: 3;4
     seconds-til-adult: 3600
+    breeding-tool: BONE
   cat:
     seconds-til-birth: 6000
     seconds-til-breedable: 300
     offspring: 3;4
     seconds-til-adult: 3600
+    breeding-tool: COD;SALMON
+  panda:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+    breeding-tool: BAMBOO
+  horse:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+    breeding-tool: GOLDEN_APPLE;GOLDEN_CARROT
+  donkey:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+    breeding-tool: GOLDEN_APPLE;GOLDEN_CARROT
+  llama:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+    breeding-tool: HAY_BLOCK
+  fox:
+    seconds-til-birth: 6000
+    seconds-til-breedable: 300
+    offspring: 3;4
+    seconds-til-adult: 3600
+    breeding-tool: SWEET_BERRIES

@@ -7,52 +7,42 @@ import org.jetbrains.annotations.NotNull;
 import tk.shanebee.breedables.data.EntityData;
 
 /**
- * Called when a female entity successfully gets pregnant
+ * Called when an entity gives birth to her babies
  */
 @SuppressWarnings("unused")
-public class EntityGetsPregnantEvent extends EntityEvent implements Cancellable {
+public class EntityBirthEvent extends EntityEvent implements Cancellable {
 
     private static HandlerList handlerList = new HandlerList();
     private EntityData entityData;
-    private int pregnancyTicks;
     private boolean cancel;
 
-    public EntityGetsPregnantEvent(@NotNull EntityData entityData, @NotNull int pregnancyTicks) {
+    public EntityBirthEvent(@NotNull EntityData entityData) {
         super(entityData.getEntity());
         this.entityData = entityData;
-        this.pregnancyTicks = pregnancyTicks;
         this.cancel = false;
     }
 
     /** Get the entity data from this event
-     * @return EntityData from this event
+     * @return Entity data from this event
      */
     public EntityData getEntityData() {
         return entityData;
     }
 
-    /** Get the pregnancy ticks from this even
-     * @return Pregnancy ticks
+    /** Set whether or not the event is cancelled
+     * <p><b>NOTE:</b> When cancelling this event, babies wont be born,
+     * <br>but the mother will still lose her pregnancy state.
+     * <br>If need be, you can set her pregnancy state again.</p>
+     * @param cancel Cancel the event
      */
-    public int getPregnancyTicks() {
-        return pregnancyTicks;
-    }
-
-    /** Set the pregnancy ticks for this event
-     * @param pregnancyTicks Ticks the mother will be pregnant for
-     */
-    public void setPregnancyTicks(int pregnancyTicks) {
-        this.pregnancyTicks = pregnancyTicks;
+    @Override
+    public void setCancelled(boolean cancel) {
+        this.cancel = cancel;
     }
 
     @Override
     public boolean isCancelled() {
-        return cancel;
-    }
-
-    @Override
-    public void setCancelled(boolean cancel) {
-        this.cancel = cancel;
+        return this.cancel;
     }
 
     @NotNull

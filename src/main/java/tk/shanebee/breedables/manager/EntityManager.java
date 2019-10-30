@@ -1,5 +1,6 @@
 package tk.shanebee.breedables.manager;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -10,6 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import tk.shanebee.breedables.Breedables;
 import tk.shanebee.breedables.data.EntityData;
+import tk.shanebee.breedables.event.EntityBirthEvent;
 import tk.shanebee.breedables.type.Gender;
 import tk.shanebee.breedables.util.Config;
 import tk.shanebee.breedables.util.Utils;
@@ -19,6 +21,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+/**
+ * Data manager for an <b>{@link Entity}</b> and their <b>{@link EntityData}</b>
+ */
 @SuppressWarnings({"unused"})
 public class EntityManager {
 
@@ -76,7 +81,7 @@ public class EntityManager {
         return null;
     }
 
-    /** Create a new EntityData for an entity
+    /** Create and store a new EntityData for an entity
      * <p>This will create a new data, store it, as well as set the data in the entity's persistent container</p>
      * @param entity Entity to create data for
      */
@@ -87,10 +92,16 @@ public class EntityManager {
         this.entityDataMap.put(entity.getUniqueId(), data);
     }
 
+    /** Remove an entity data from this entity manager
+     * @param entity Entity to remove data for
+     */
     public void removeEntityData(@NotNull Entity entity) {
         this.entityDataMap.remove(entity.getUniqueId());
     }
 
+    /** Create and store a new <b>{@link EntityData}</b> from an entity's <b>{@link org.bukkit.persistence.PersistentDataContainer}</b>
+     * @param entity Entity to grab data from
+     */
     public void createDataFromContainer(@NotNull Entity entity) {
         if (!isBreedable(entity)) return;
         NamespacedKey key = new NamespacedKey(Breedables.getInstance(), "entity-data");
@@ -100,7 +111,8 @@ public class EntityManager {
         }
     }
 
-    /** Update an entity's EntityData stored in their persistent container
+    /** Update an entity's EntityData stored in their <b>{@link org.bukkit.persistence.PersistentDataContainer}</b>
+     * <p>This is to ensure all entity data is persistent after server restarts</p>
      * @param entity Entity to update
      */
     public void updateEntityData(@NotNull Entity entity) {
@@ -122,7 +134,7 @@ public class EntityManager {
      * @return True if entities are opposing genders
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean opposingGenders(@NotNull Entity entity1, @NotNull Entity entity2) {
+    public boolean areOpposingGenders(@NotNull Entity entity1, @NotNull Entity entity2) {
         if (!isBreedable(entity1) || !isBreedable(entity2)) return false;
 
         EntityData data1 = getEntityData(entity1);
@@ -137,30 +149,48 @@ public class EntityManager {
      * @return EntityData for female of the two entities
      */
     public EntityData getFemaleData(Entity entity1, Entity entity2) {
-        if (!opposingGenders(entity1, entity2)) return null;
+        if (!areOpposingGenders(entity1, entity2)) return null;
         EntityData entityData1 = getEntityData(entity1);
         EntityData entityData2 = getEntityData(entity2);
         return entityData1.getGender() == Gender.FEMALE ? entityData1 : entityData2;
     }
 
+    /** Get the EntityData for the male between 2 entities
+     * @param entity1 First entity
+     * @param entity2 Second entity
+     * @return EntityData for male of the two entities
+     */
     public EntityData getMaleData(Entity entity1, Entity entity2) {
-        if (!opposingGenders(entity1, entity2)) return null;
+        if (!areOpposingGenders(entity1, entity2)) return null;
         EntityData entityData1 = getEntityData(entity1);
         EntityData entityData2 = getEntityData(entity2);
         return entityData1.getGender() == Gender.MALE ? entityData1 : entityData2;
     }
 
+    /** Make this entity give birth
+     * <p>This method will also call the <b>{@link EntityBirthEvent}</b>
+     * <br>If the event is cancelled, the offspring will not be born but the mother will still lose her pregnancy state</p>
+     * @param entityData EntityData of entity to give birth
+     */
     public void giveBirth(EntityData entityData) {
         entityData.setPregnant(false);
         entityData.setPregnantTicks(0);
-        int b = getBabyAmount(entityData.getEntityType());
-        Location loc = entityData.getEntity().getLocation();
-        World w = loc.getWorld();
-        assert w != null;
-        EntityType type = entityData.getEntityType();
-        for (int i = 0; i < b; i++) {
-            Ageable baby = ((Ageable) w.spawnEntity(loc, type));
-            baby.setAge(-(config.getBreedData(type).getTicksTilAdult()));
+
+        // Call entity birth event
+        EntityBirthEvent event = new EntityBirthEvent(entityData);
+        Bukkit.getPluginManager().callEvent(event);
+
+        // If the event isn't cancelled, proceed to make mother give birth
+        if (!event.isCancelled()) {
+            int b = getBabyAmount(entityData.getEntityType());
+            Location loc = entityData.getEntity().getLocation();
+            World w = loc.getWorld();
+            assert w != null;
+            EntityType type = entityData.getEntityType();
+            for (int i = 0; i < b; i++) {
+                Ageable baby = ((Ageable) w.spawnEntity(loc, type));
+                baby.setAge(-(config.getBreedData(type).getTicksTilAdult()));
+            }
         }
     }
 

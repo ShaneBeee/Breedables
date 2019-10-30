@@ -1,5 +1,7 @@
 package tk.shanebee.breedables.util;
 
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -12,9 +14,7 @@ import tk.shanebee.breedables.data.EntityData;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Config {
 
@@ -23,7 +23,8 @@ public class Config {
     private File customConfigFile = null;
     private Map<EntityType, BreedData> breedMap = new HashMap<>();
 
-    public List<String> ENABLED_WORLDS;
+    //public List<String> ENABLED_WORLDS;
+    public Set<World> enabledWorlds;
 
 
     public Config(Breedables plugin) {
@@ -70,7 +71,9 @@ public class Config {
     }
     
     private void loadConfig() {
-        this.ENABLED_WORLDS = config.getStringList("enabled-worlds");
+        //this.ENABLED_WORLDS = config.getStringList("enabled-worlds");
+        setEnabledWorlds(config.getStringList("enabled-worlds"));
+
         ConfigurationSection sections = config.getConfigurationSection("entity-data");
         assert sections != null;
         for (String key : sections.getKeys(false)) {
@@ -80,7 +83,8 @@ public class Config {
                 int breed = config.getInt("entity-data." + key + ".seconds-til-breed") * 20;
                 int adult = config.getInt("entity-data." + key + ".seconds-til-adult") * 20;
                 String off = config.getString("entity-data." + key + ".offspring");
-                BreedData data = new BreedData(type, preg, breed, adult, off);
+                String tool = config.getString("entity-data." + key + ".breeding-tool");
+                BreedData data = new BreedData(type, preg, breed, adult, off, tool);
                 breedMap.put(type, data);
             } else {
                 Utils.log("&6Invalid entity type: &c" + key);
@@ -93,6 +97,15 @@ public class Config {
             return breedMap.get(type);
         }
         return null;
+    }
+
+    private void setEnabledWorlds(List<String> enabledWorlds) {
+        for (String world : enabledWorlds) {
+            World w = Bukkit.getWorld(world);
+            if (w != null) {
+                this.enabledWorlds.add(w);
+            }
+        }
     }
 
     public BreedData getBreedData(Entity entity) {

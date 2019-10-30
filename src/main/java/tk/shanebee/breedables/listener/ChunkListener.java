@@ -7,6 +7,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import tk.shanebee.breedables.Breedables;
 import tk.shanebee.breedables.data.EntityData;
 import tk.shanebee.breedables.manager.EntityManager;
+import tk.shanebee.breedables.util.Config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,16 +15,20 @@ import java.util.List;
 class ChunkListener implements Listener {
 
     private EntityManager entityManager;
+    private Config config;
 
     ChunkListener(Breedables plugin) {
         this.entityManager = plugin.getEntityManager();
+        this.config = plugin.getBreedablesConfig();
     }
 
     @EventHandler
     private void onChunkLoad(ChunkLoadEvent event) {
-        List<Entity> breedables = getBreedableEntities(event);
-        createData(breedables);
-        checkBirth(breedables);
+        if (config.enabledWorlds.contains(event.getWorld())) {
+            List<Entity> breedables = getBreedableEntities(event);
+            createData(breedables);
+            checkBirth(breedables);
+        }
     }
 
     private List<Entity> getBreedableEntities(ChunkLoadEvent event) {
