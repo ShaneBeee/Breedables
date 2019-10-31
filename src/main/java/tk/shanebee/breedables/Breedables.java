@@ -2,6 +2,7 @@ package tk.shanebee.breedables;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import tk.shanebee.breedables.listener.ListenerManager;
+import tk.shanebee.breedables.manager.EffectManager;
 import tk.shanebee.breedables.manager.EntityManager;
 import tk.shanebee.breedables.task.TaskManager;
 import tk.shanebee.breedables.util.Config;
@@ -18,6 +19,7 @@ public class Breedables extends JavaPlugin {
     private EntityManager entityManager;
     private ListenerManager listenerManager;
     private TaskManager taskManager;
+    private EffectManager effectManager;
 
     @Override
     public void onEnable() {
@@ -27,6 +29,7 @@ public class Breedables extends JavaPlugin {
         loadConfigs();
 
         // Load managers
+        this.effectManager = new EffectManager();
         this.entityManager = new EntityManager(this);
         this.listenerManager = new ListenerManager(this);
         this.taskManager = new TaskManager(this);
@@ -88,6 +91,13 @@ public class Breedables extends JavaPlugin {
      */
     public TaskManager getTaskManager() {
         return taskManager;
+    }
+
+    /** Get an instance of the EffectManager
+     * @return Instance of EffectManager
+     */
+    public EffectManager getEffectManager() {
+        return effectManager;
     }
 
 }
