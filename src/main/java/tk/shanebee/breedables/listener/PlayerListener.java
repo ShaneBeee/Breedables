@@ -12,6 +12,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import tk.shanebee.breedables.Breedables;
 import tk.shanebee.breedables.data.EntityData;
 import tk.shanebee.breedables.event.EntityGetsPregnantEvent;
+import tk.shanebee.breedables.manager.EffectManager;
 import tk.shanebee.breedables.manager.EntityManager;
 import tk.shanebee.breedables.util.Config;
 import tk.shanebee.breedables.util.Lang;
@@ -23,12 +24,14 @@ import java.util.Map;
 class PlayerListener implements Listener {
 
     private EntityManager entityManager;
+    private EffectManager effectManager;
     private Lang lang;
     private Config config;
     private Map<Player, Entity> playerEntityMap = new HashMap<>();
 
     PlayerListener(Breedables plugin) {
         this.entityManager = plugin.getEntityManager();
+        this.effectManager = plugin.getEffectManager();
         this.lang = plugin.getLang();
         this.config = plugin.getBreedablesConfig();
     }
@@ -118,6 +121,10 @@ class PlayerListener implements Listener {
             // Make mom pregnant
             momData.setPregnant(true);
             momData.setPregnantTicks(pregTick);
+
+            // Play effects
+            effectManager.playLoveHearts(momData);
+            effectManager.playLoveHearts(dadData);
 
             Utils.sendColMsg(breeder, "&aSuccessfully bred 2 entities");
         }

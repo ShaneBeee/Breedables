@@ -23,16 +23,21 @@ import java.util.UUID;
 
 /**
  * Data manager for an <b>{@link Entity}</b> and their <b>{@link EntityData}</b>
+ * <p>You can get an instance of this class from <b>{@link Breedables#getEntityManager()}</b></p>
  */
-@SuppressWarnings({"unused"})
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class EntityManager {
 
+    private Breedables plugin;
     private Map<UUID, EntityData> entityDataMap;
     private Config config;
+    private EffectManager effectManager;
 
     public EntityManager(Breedables plugin) {
+        this.plugin = plugin;
         this.entityDataMap = new HashMap<>();
         this.config = plugin.getBreedablesConfig();
+        this.effectManager = plugin.getEffectManager();
     }
 
     /** Add EntityData to the entity manager
@@ -84,12 +89,14 @@ public class EntityManager {
     /** Create and store a new EntityData for an entity
      * <p>This will create a new data, store it, as well as set the data in the entity's persistent container</p>
      * @param entity Entity to create data for
+     * @return New EntityData
      */
-    public void createEntityData(@NotNull Entity entity) {
-        if (!isBreedable(entity)) return;
+    public EntityData createEntityData(@NotNull Entity entity) {
+        if (!isBreedable(entity)) return null;
 
         EntityData data = new EntityData(entity, Utils.getRandomGender());
         this.entityDataMap.put(entity.getUniqueId(), data);
+        return data;
     }
 
     /** Remove an entity data from this entity manager
@@ -190,6 +197,10 @@ public class EntityManager {
             for (int i = 0; i < b; i++) {
                 Ageable baby = ((Ageable) w.spawnEntity(loc, type));
                 baby.setAge(-(config.getBreedData(type).getTicksTilAdult()));
+                EntityData babyData = getEntityData(baby);
+
+                Bukkit.getScheduler().runTaskLater(plugin,
+                        () -> effectManager.playBirthEffect(babyData, 1), 20 + (i * 4));
             }
         }
     }
@@ -199,6 +210,10 @@ public class EntityManager {
         int max = config.getBreedData(type).getOffspringMax();
         Random random = new Random();
         return (random.nextInt(max - min + 1) + min);
+    }
+
+    public Map<UUID, EntityData> getEntityData() {
+        return entityDataMap;
     }
 
 }

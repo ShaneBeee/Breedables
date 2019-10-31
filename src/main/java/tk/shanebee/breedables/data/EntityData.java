@@ -6,6 +6,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataType;
 import tk.shanebee.breedables.Breedables;
+import tk.shanebee.breedables.manager.EntityManager;
 import tk.shanebee.breedables.type.Gender;
 import tk.shanebee.breedables.util.Utils;
 
@@ -14,11 +15,13 @@ import java.util.UUID;
 /**
  * Data holder for a breedable <b>{@link Entity}</b>
  * <p>This data is stored in a map in <b>{@link tk.shanebee.breedables.manager.EntityManager}</b> while the server is running
- * <br>It is also permanently stored in the entity's <b>{@link org.bukkit.persistence.PersistentDataContainer}</b></p>
+ * <br>It is also permanently stored in the entity's <b>{@link org.bukkit.persistence.PersistentDataContainer}</b>
+ * <br>There are several methods in <b>{@link EntityManager}</b> to get an entity's data</p>
  */
 @SuppressWarnings("unused")
 public class EntityData {
 
+    private EntityManager entityManager = Breedables.getInstance().getEntityManager();
     private UUID uuid;
     private EntityType entityType;
     private Gender gender;
@@ -191,6 +194,21 @@ public class EntityData {
         NamespacedKey key = new NamespacedKey(Breedables.getInstance(), "entity-data");
         entity.getPersistentDataContainer().set(key, PersistentDataType.STRING, this.toDataString());
         return true;
+    }
+
+    /** Tick this entity data
+     * <p>This should only be used <b>internally</b>
+     * <br>Will only tick pregnant entities</p>
+     * @param delay Delay for tick timer
+     */
+    public void tick(int delay) {
+        if (this.isPregnant()) {
+            if (this.getPregnantTicks() > 0) {
+                removePregnantTicks(20 * delay);
+            } else {
+                entityManager.giveBirth(this);
+            }
+        }
     }
 
 }

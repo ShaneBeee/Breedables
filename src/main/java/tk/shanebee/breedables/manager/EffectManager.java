@@ -3,8 +3,13 @@ package tk.shanebee.breedables.manager;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import tk.shanebee.breedables.Breedables;
 import tk.shanebee.breedables.data.EntityData;
 
+/**
+ * Manager for effects
+ * <p>You can get an instance fo this class from <b>{@link Breedables#getEffectManager()}</b></p>
+ */
 @SuppressWarnings("WeakerAccess")
 public class EffectManager {
 

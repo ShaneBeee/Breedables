@@ -5,7 +5,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import tk.shanebee.breedables.Breedables;
-import tk.shanebee.breedables.data.EntityData;
 import tk.shanebee.breedables.manager.EntityManager;
 import tk.shanebee.breedables.util.Config;
 
@@ -27,7 +26,6 @@ class ChunkListener implements Listener {
         if (config.enabledWorlds.contains(event.getWorld())) {
             List<Entity> breedables = getBreedableEntities(event);
             createData(breedables);
-            checkBirth(breedables);
         }
     }
 
@@ -44,15 +42,6 @@ class ChunkListener implements Listener {
         for (Entity entity : entities) {
             if (!entityManager.hasEntityData(entity)) {
                 entityManager.createEntityData(entity);
-            }
-        }
-    }
-
-    private void checkBirth(List<Entity> entities) {
-        for (Entity entity : entities) {
-            EntityData data = entityManager.getEntityData(entity);
-            if (data.isPregnant() && data.getPregnantTicks() <= 0) {
-                entityManager.giveBirth(data);
             }
         }
     }

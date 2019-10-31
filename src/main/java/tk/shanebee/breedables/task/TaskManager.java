@@ -9,8 +9,7 @@ import tk.shanebee.breedables.Breedables;
 public class TaskManager {
 
     private Breedables plugin;
-    private PregnancyTask pregnancyTask;
-    private EntityDataTask entityDataTask;
+    private EntityDataTask pregnancyTask;
 
     public TaskManager(Breedables plugin) {
         this.plugin = plugin;
@@ -21,8 +20,7 @@ public class TaskManager {
      * <p>This should not be used by external plugins</p>
      */
     public void startTasks() {
-        this.pregnancyTask = new PregnancyTask(plugin, 1);
-        this.entityDataTask = new EntityDataTask(plugin, 5);
+        this.pregnancyTask = new EntityDataTask(plugin, 1);
     }
 
     /**
@@ -31,7 +29,6 @@ public class TaskManager {
      */
     public void cancelTasks() {
         this.pregnancyTask.cancelTask();
-        this.entityDataTask.cancelTask();
     }
 
 }

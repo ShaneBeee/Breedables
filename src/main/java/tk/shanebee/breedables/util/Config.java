@@ -24,7 +24,7 @@ public class Config {
     private Map<EntityType, BreedData> breedMap = new HashMap<>();
 
     //public List<String> ENABLED_WORLDS;
-    public Set<World> enabledWorlds;
+    public Set<World> enabledWorlds = new HashSet<>();
 
 
     public Config(Breedables plugin) {
